@@ -3,3 +3,4 @@ uvicorn[standard]
 paho-mqtt
 sqlalchemy
 python-dotenv
+psycopg2-binary
