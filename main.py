@@ -2,9 +2,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import threading
-from .mqtt_worker import mqtt_worker
-from .database import Base, engine
-from .api.routes import router as api_router
+from mqtt_worker import mqtt_worker
+from database import Base, engine
+from api.routes import router as api_router
 
 Base.metadata.create_all(bind=engine)
 

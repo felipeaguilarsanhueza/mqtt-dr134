@@ -3,9 +3,9 @@ import json
 import os
 import time
 from queue import Queue
-from .database import SessionLocal
-from .models import Device
-from .crud import get_device_by_mac, save_reading
+from database import SessionLocal
+from models import Device
+from crud import get_device_by_mac, save_reading
 
 MQTT_BROKER = "35.188.202.130"
 MQTT_PORT = 1883

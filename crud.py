@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .models import Device, EnergyData
+from models import Device, EnergyData
 
 def get_device_by_mac(db: Session, mac: str):
     return db.query(Device).filter(Device.mac == mac).first()
