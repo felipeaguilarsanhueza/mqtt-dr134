@@ -1,1 +1,5 @@
+fastapi
+uvicorn[standard]
 paho-mqtt
+sqlalchemy
+python-dotenv
