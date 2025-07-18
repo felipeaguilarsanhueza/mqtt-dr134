@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ..database import SessionLocal
-from ..models import Device, EnergyData
-from ..crud import get_device_by_mac
+from database import SessionLocal
+from models import Device, EnergyData
+from crud import get_device_by_mac
 
 router = APIRouter()
 
