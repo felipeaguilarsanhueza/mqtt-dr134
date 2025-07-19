@@ -77,4 +77,5 @@ def mqtt_worker():
                     logger.info("Saved reading for %s: %s", mac, result)
         except Exception:
             logger.exception("Error in MQTT worker loop")
+            db.rollback()
             time.sleep(1)
