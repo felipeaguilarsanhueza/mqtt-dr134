@@ -1,10 +1,14 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 import threading
 from mqtt_worker import mqtt_worker
 from database import Base, engine
 from api.routes import router as api_router
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 Base.metadata.create_all(bind=engine)
 

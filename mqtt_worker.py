@@ -2,10 +2,13 @@ import paho.mqtt.client as mqtt
 import json
 import os
 import time
+import logging
 from queue import Queue
 from database import SessionLocal
 from models import Device
 from crud import get_device_by_mac, save_reading
+
+logger = logging.getLogger(__name__)
 
 MQTT_BROKER = "35.188.202.130"
 MQTT_PORT = 1883
@@ -16,11 +19,14 @@ response_queue = Queue()
 
 def on_message(client, userdata, msg):
     mac = msg.topic.strip("/").replace("-response-topic", "")
-    response_queue.put((mac, msg.payload.decode()))
+    payload = msg.payload.decode()
+    logger.debug("Received MQTT message for %s: %s", mac, payload)
+    response_queue.put((mac, payload))
 
 def process_json(payload):
     try:
         data = json.loads(payload)
+        logger.debug("Processing JSON payload: %s", payload)
         result = {}
         for item in data["params"]["r_data"]:
             if item["name"] == "voltaje":
@@ -29,6 +35,7 @@ def process_json(payload):
                 result["current"] = round(float(item["value"]) / 1000, 3)
         return result
     except Exception as e:
+        logger.error("Failed to process JSON payload: %s", e)
         return None
 
 def mqtt_worker():
@@ -36,6 +43,7 @@ def mqtt_worker():
     client = mqtt.Client()
     client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     client.on_message = on_message
+    logger.info("Connecting to MQTT broker %s:%s", MQTT_BROKER, MQTT_PORT)
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
     subscribed_macs = set()
@@ -45,6 +53,7 @@ def mqtt_worker():
         for device in devices:
             if device.mac not in subscribed_macs:
                 topic = f"/{device.mac}-response-topic"
+                logger.info("Subscribing to topic %s", topic)
                 client.subscribe(topic)
                 subscribed_macs.add(device.mac)
 
@@ -59,10 +68,13 @@ def mqtt_worker():
             subscribe_new_devices()
 
             mac, payload = response_queue.get(timeout=5)
+            logger.debug("Processing message for %s", mac)
             result = process_json(payload)
             if result:
                 device = get_device_by_mac(db, mac)
                 if device:
                     save_reading(db, result["voltage"], result["current"], device.id)
+                    logger.info("Saved reading for %s: %s", mac, result)
         except Exception:
+            logger.exception("Error in MQTT worker loop")
             time.sleep(1)
