@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from database import Base
 
 class Device(Base):
@@ -15,7 +15,10 @@ class Device(Base):
 class EnergyData(Base):
     __tablename__ = "energy_data"
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
     # Voltajes y Corrientes (RMS)
     voltage_phase_a = Column(Float, nullable=True)
     voltage_phase_b = Column(Float, nullable=True)

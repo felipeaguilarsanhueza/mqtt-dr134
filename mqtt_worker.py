@@ -3,7 +3,7 @@ import json
 import os
 import time
 import logging
-from queue import Queue
+from queue import Queue, Empty
 from database import SessionLocal
 from models import Device
 from crud import get_device_by_mac, save_reading
@@ -75,6 +75,8 @@ def mqtt_worker():
                 if device:
                     save_reading(db, result, device.id)
                     logger.info("Saved reading for %s: %s", mac, result)
+        except Empty:
+            logger.debug("Response queue timed out waiting for messages")
         except Exception:
             logger.exception("Error in MQTT worker loop")
             db.rollback()
