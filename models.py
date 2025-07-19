@@ -7,7 +7,8 @@ class Device(Base):
     __tablename__ = "devices"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
-    mac = Column(String, unique=True, index=True)
+    mac = Column(String, unique=True, index=True, nullable=True)
+    imei = Column(String, unique=True, index=True, nullable=True)
     description = Column(String)
     device_type = Column(String, default="dr134")
 

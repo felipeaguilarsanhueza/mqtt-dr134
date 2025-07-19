@@ -16,7 +16,7 @@ from queue import Queue, Empty
 from database import SessionLocal
 from models import Device
 from crud import (
-    get_device_by_mac,
+    get_device_by_identifier,
     save_reading,
     get_devices_by_type,
 )
@@ -88,7 +88,7 @@ def mqtt_worker():
             logger.debug("Processing message for %s", mac)
             result = process_json(payload)
             if result:
-                device = get_device_by_mac(db, mac)
+                device = get_device_by_identifier(db, mac)
                 if device:
                     save_reading(db, result, device.id)
                     logger.info("Saved reading for %s: %s", mac, result)

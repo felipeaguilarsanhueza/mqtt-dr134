@@ -1,5 +1,15 @@
 from sqlalchemy.orm import Session
 from models import Device, EnergyData
+from sqlalchemy import or_
+
+
+def get_device_by_identifier(db: Session, identifier: str):
+    """Return a device matching either MAC or IMEI"""
+    return (
+        db.query(Device)
+        .filter(or_(Device.mac == identifier, Device.imei == identifier))
+        .first()
+    )
 
 def get_device_by_mac(db: Session, mac: str):
     return db.query(Device).filter(Device.mac == mac).first()

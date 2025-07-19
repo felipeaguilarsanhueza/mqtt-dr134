@@ -17,7 +17,7 @@ from queue import Queue, Empty
 
 from database import SessionLocal
 from models import Device
-from crud import get_device_by_mac, save_reading, get_devices_by_type
+from crud import get_device_by_identifier, save_reading, get_devices_by_type
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ def dr154_worker():
                         results[name] = None
 
                 if any(v is not None for v in results.values()):
-                    device = get_device_by_mac(db, imei)
+                    device = get_device_by_identifier(db, imei)
                     if device:
                         save_reading(db, results, device.id)
                         logger.info("Saved DR154 reading for %s: %s", imei, results)
