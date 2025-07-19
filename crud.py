@@ -15,6 +15,9 @@ def create_device(db: Session, device_data):
         raise
     return db_device
 
+def get_devices_by_type(db: Session, device_type: str):
+    return db.query(Device).filter(Device.device_type == device_type).all()
+
 def save_reading(db: Session, reading_data: dict, device_id: int):
     """Save a set of measurements for a device."""
     reading = EnergyData(device_id=device_id, **reading_data)

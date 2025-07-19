@@ -9,6 +9,7 @@ class Device(Base):
     name = Column(String, unique=True, index=True)
     mac = Column(String, unique=True, index=True)
     description = Column(String)
+    device_type = Column(String, default="dr134")
 
     readings = relationship("EnergyData", back_populates="device")
 
