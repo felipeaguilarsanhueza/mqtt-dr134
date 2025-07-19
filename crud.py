@@ -15,8 +15,9 @@ def create_device(db: Session, device_data):
         raise
     return db_device
 
-def save_reading(db: Session, voltage, current, device_id):
-    reading = EnergyData(voltage=voltage, current=current, device_id=device_id)
+def save_reading(db: Session, reading_data: dict, device_id: int):
+    """Save a set of measurements for a device."""
+    reading = EnergyData(device_id=device_id, **reading_data)
     db.add(reading)
     try:
         db.commit()

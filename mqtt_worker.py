@@ -30,9 +30,9 @@ def process_json(payload):
         result = {}
         for item in data["params"]["r_data"]:
             if item["name"] == "voltaje":
-                result["voltage"] = round(float(item["value"]) / 10, 1)
+                result["voltage_phase_a"] = round(float(item["value"]) / 10, 1)
             elif item["name"] == "corriente":
-                result["current"] = round(float(item["value"]) / 1000, 3)
+                result["current_phase_a"] = round(float(item["value"]) / 1000, 3)
         return result
     except Exception as e:
         logger.error("Failed to process JSON payload: %s", e)
@@ -73,7 +73,7 @@ def mqtt_worker():
             if result:
                 device = get_device_by_mac(db, mac)
                 if device:
-                    save_reading(db, result["voltage"], result["current"], device.id)
+                    save_reading(db, result, device.id)
                     logger.info("Saved reading for %s: %s", mac, result)
         except Exception:
             logger.exception("Error in MQTT worker loop")

@@ -23,10 +23,16 @@ def get_data(mac: str, limit: int = 10, db: Session = Depends(get_db)):
     if not device:
         logger.warning("Device with MAC %s not found", mac)
         raise HTTPException(status_code=404, detail="Device not found")
-    data = db.query(EnergyData).filter(EnergyData.device_id == device.id)\
-        .order_by(EnergyData.timestamp.desc()).limit(limit).all()
+    data = (
+        db.query(EnergyData)
+        .filter(EnergyData.device_id == device.id)
+        .order_by(EnergyData.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
     logger.info("Returning %d readings for device %s", len(data), mac)
+    columns = [c.name for c in EnergyData.__table__.columns]
     return [
-        {"timestamp": r.timestamp, "voltage": r.voltage, "current": r.current}
+        {col: getattr(r, col) for col in columns}
         for r in data
     ]
