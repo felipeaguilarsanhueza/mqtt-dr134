@@ -38,16 +38,26 @@ def mqtt_worker():
     client.on_message = on_message
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
-    # Suscribirse a todos los dispositivos conocidos
-    devices = db.query(Device).all()
-    for device in devices:
-        topic = f"/{device.mac}-response-topic"
-        client.subscribe(topic)
+    subscribed_macs = set()
+
+    def subscribe_new_devices():
+        devices = db.query(Device).all()
+        for device in devices:
+            if device.mac not in subscribed_macs:
+                topic = f"/{device.mac}-response-topic"
+                client.subscribe(topic)
+                subscribed_macs.add(device.mac)
+
+    # Subscribe to existing devices at startup
+    subscribe_new_devices()
 
     client.loop_start()
 
     while True:
         try:
+            # Check if there are new devices to subscribe to
+            subscribe_new_devices()
+
             mac, payload = response_queue.get(timeout=5)
             result = process_json(payload)
             if result:
