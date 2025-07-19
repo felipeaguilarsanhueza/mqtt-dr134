@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import threading
-from mqtt_worker import mqtt_worker
+from mqtt_worker import mqtt_worker, MQTT_AVAILABLE
 from database import Base, engine
 from api.routes import router as api_router
 
@@ -24,9 +24,12 @@ app.add_middleware(
 
 app.include_router(api_router)
 
-# Lanzar el worker MQTT
-mqtt_thread = threading.Thread(target=mqtt_worker, daemon=True)
-mqtt_thread.start()
+# Lanzar el worker MQTT si la dependencia paho-mqtt está disponible
+if MQTT_AVAILABLE:
+    mqtt_thread = threading.Thread(target=mqtt_worker, daemon=True)
+    mqtt_thread.start()
+else:
+    logger.warning("MQTT worker disabled due to missing dependency")
 
 if __name__ == "__main__":
     import uvicorn

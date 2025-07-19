@@ -1,4 +1,13 @@
-import paho.mqtt.client as mqtt
+try:
+    import paho.mqtt.client as mqtt
+    MQTT_AVAILABLE = True
+except ImportError:  # pragma: no cover - optional dependency
+    mqtt = None
+    MQTT_AVAILABLE = False
+    import logging
+    logging.getLogger(__name__).warning(
+        "paho-mqtt not installed; MQTT functionality disabled"
+    )
 import json
 import os
 import time
@@ -39,6 +48,10 @@ def process_json(payload):
         return None
 
 def mqtt_worker():
+    if not MQTT_AVAILABLE:
+        logger.warning("MQTT worker not started: paho-mqtt not installed")
+        return
+
     db = SessionLocal()
     client = mqtt.Client()
     client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
