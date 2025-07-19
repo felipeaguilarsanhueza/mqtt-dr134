@@ -15,7 +15,11 @@ import logging
 from queue import Queue, Empty
 from database import SessionLocal
 from models import Device
-from crud import get_device_by_mac, save_reading
+from crud import (
+    get_device_by_mac,
+    save_reading,
+    get_devices_by_type,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +66,7 @@ def mqtt_worker():
     subscribed_macs = set()
 
     def subscribe_new_devices():
-        devices = db.query(Device).all()
+        devices = get_devices_by_type(db, "dr134")
         for device in devices:
             if device.mac not in subscribed_macs:
                 topic = f"/{device.mac}-response-topic"
